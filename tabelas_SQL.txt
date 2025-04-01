@@ -1,0 +1,103 @@
+-- schema.sql
+-- Criação das tabelas para o sistema universitário
+
+------------ Tabelas Base ------------
+
+-- Departamento
+CREATE TABLE departamento (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    chefe_id INT REFERENCES professor(id)
+);
+
+-- Professor
+CREATE TABLE professor (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    departamento_id INT NOT NULL REFERENCES departamento(id)
+);
+
+------------ Cursos e Disciplinas ------------
+
+-- Curso
+CREATE TABLE curso (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    departamento_id INT NOT NULL REFERENCES departamento(id),
+    coordenador_id INT NOT NULL REFERENCES professor(id)
+);
+
+-- Disciplina
+CREATE TABLE disciplina (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(10) UNIQUE NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    departamento_id INT NOT NULL REFERENCES departamento(id)
+);
+
+-- Matriz Curricular
+CREATE TABLE curso_disciplina (
+    curso_id INT NOT NULL REFERENCES curso(id),
+    disciplina_id INT NOT NULL REFERENCES disciplina(id),
+    professor_responsavel_id INT NOT NULL REFERENCES professor(id),
+    PRIMARY KEY (curso_id, disciplina_id)
+);
+
+------------ Alunos e Histórico ------------
+
+-- Aluno
+CREATE TABLE aluno (
+    ra VARCHAR(10) PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    curso_id INT NOT NULL REFERENCES curso(id)
+);
+
+-- Turmas Lecionadas
+CREATE TABLE lecionada (
+    id SERIAL PRIMARY KEY,
+    disciplina_id INT NOT NULL REFERENCES disciplina(id),
+    professor_id INT NOT NULL REFERENCES professor(id),
+    semestre VARCHAR(7) NOT NULL,
+    UNIQUE (disciplina_id, professor_id, semestre)
+);
+
+-- Histórico Escolar
+CREATE TABLE historicoescolar (
+    id SERIAL PRIMARY KEY,
+    aluno_ra VARCHAR(10) NOT NULL REFERENCES aluno(ra),
+    lecionada_id INT NOT NULL REFERENCES lecionada(id),
+    nota DECIMAL(4,2) CHECK (nota BETWEEN 0 AND 10),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('aprovado', 'reprovado')),
+    UNIQUE (aluno_ra, lecionada_id)
+);
+
+------------ TCCs ------------
+
+-- TCC
+CREATE TABLE tcc (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(200) NOT NULL,
+    orientador_id INT NOT NULL REFERENCES professor(id),
+    semestre VARCHAR(7) NOT NULL
+);
+
+-- Alunos por TCC
+CREATE TABLE tcc_aluno (
+    tcc_id INT NOT NULL REFERENCES tcc(id),
+    aluno_ra VARCHAR(10) NOT NULL REFERENCES aluno(ra),
+    PRIMARY KEY (tcc_id, aluno_ra)
+);
+
+------------ Comando para Reset ------------
+TRUNCATE TABLE 
+    historicoescolar,
+    tcc_aluno,
+    tcc,
+    lecionada,
+    curso_disciplina,
+    aluno,
+    disciplina,
+    curso,
+    professor,
+    departamento 
+RESTART IDENTITY CASCADE;
