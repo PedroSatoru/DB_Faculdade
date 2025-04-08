@@ -1,103 +1,144 @@
--- schema.sql
--- Criação das tabelas para o sistema universitário
+-- ================================================
+-- PARTE 1: LIMPEZA COMPLETA DO BANCO (CASCADE)
+-- ================================================
 
------------- Tabelas Base ------------
+-- Desativa triggers para evitar erros de FK
+SET session_replication_role = 'replica';
 
--- Departamento
-CREATE TABLE departamento (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    chefe_id INT REFERENCES professor(id)
-);
+-- Remove todas as tabelas na ordem correta para evitar problemas com FKs
+DROP TABLE IF EXISTS public.historicoescolar CASCADE;
+DROP TABLE IF EXISTS public.tcc_aluno CASCADE;
+DROP TABLE IF EXISTS public.tcc CASCADE;
+DROP TABLE IF EXISTS public.lecionada CASCADE;
+DROP TABLE IF EXISTS public.curso_disciplina CASCADE;
+DROP TABLE IF EXISTS public.aluno CASCADE;
+DROP TABLE IF EXISTS public.professor CASCADE;
+DROP TABLE IF EXISTS public.disciplina CASCADE;
+DROP TABLE IF EXISTS public.curso CASCADE;
+DROP TABLE IF EXISTS public.departamento CASCADE;
 
--- Professor
-CREATE TABLE professor (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    departamento_id INT NOT NULL REFERENCES departamento(id)
-);
+-- Reativa triggers
+SET session_replication_role = 'origin';
 
------------- Cursos e Disciplinas ------------
+-- ================================================
+-- PARTE 2: CRIAÇÃO DAS TABELAS (MESMO SCHEMA ORIGINAL)
+-- ================================================
 
--- Curso
-CREATE TABLE curso (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    departamento_id INT NOT NULL REFERENCES departamento(id),
-    coordenador_id INT NOT NULL REFERENCES professor(id)
-);
+CREATE TABLE public.departamento (
+  id serial NOT NULL,
+  nome character varying(100) NOT NULL,
+  chefe_id integer NULL,
+  CONSTRAINT departamento_pkey PRIMARY KEY (id)
+) TABLESPACE pg_default;
 
--- Disciplina
-CREATE TABLE disciplina (
-    id SERIAL PRIMARY KEY,
-    codigo VARCHAR(10) UNIQUE NOT NULL,
-    nome VARCHAR(100) NOT NULL,
-    departamento_id INT NOT NULL REFERENCES departamento(id)
-);
+CREATE TABLE public.professor (
+  id serial NOT NULL,
+  nome character varying(100) NOT NULL,
+  departamento_id integer NOT NULL,
+  CONSTRAINT professor_pkey PRIMARY KEY (id),
+  CONSTRAINT professor_departamento_id_fkey FOREIGN KEY (departamento_id) 
+    REFERENCES departamento(id)
+) TABLESPACE pg_default;
 
--- Matriz Curricular
-CREATE TABLE curso_disciplina (
-    curso_id INT NOT NULL REFERENCES curso(id),
-    disciplina_id INT NOT NULL REFERENCES disciplina(id),
-    professor_responsavel_id INT NOT NULL REFERENCES professor(id),
-    PRIMARY KEY (curso_id, disciplina_id)
-);
+ALTER TABLE public.departamento
+ADD CONSTRAINT fk_chefe FOREIGN KEY (chefe_id) REFERENCES professor(id);
 
------------- Alunos e Histórico ------------
+CREATE TABLE public.curso (
+  id serial NOT NULL,
+  nome character varying(100) NOT NULL,
+  departamento_id integer NOT NULL,
+  coordenador_id integer NOT NULL,
+  CONSTRAINT curso_pkey PRIMARY KEY (id),
+  CONSTRAINT curso_coordenador_id_fkey FOREIGN KEY (coordenador_id) 
+    REFERENCES professor(id),
+  CONSTRAINT curso_departamento_id_fkey FOREIGN KEY (departamento_id) 
+    REFERENCES departamento(id)
+) TABLESPACE pg_default;
 
--- Aluno
-CREATE TABLE aluno (
-    ra VARCHAR(10) PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    curso_id INT NOT NULL REFERENCES curso(id)
-);
+CREATE TABLE public.disciplina (
+  id serial NOT NULL,
+  codigo character varying(10) NOT NULL,
+  nome character varying(100) NOT NULL,
+  departamento_id integer NOT NULL,
+  CONSTRAINT disciplina_pkey PRIMARY KEY (id),
+  CONSTRAINT disciplina_codigo_key UNIQUE (codigo),
+  CONSTRAINT disciplina_departamento_id_fkey FOREIGN KEY (departamento_id) 
+    REFERENCES departamento(id)
+) TABLESPACE pg_default;
 
--- Turmas Lecionadas
-CREATE TABLE lecionada (
-    id SERIAL PRIMARY KEY,
-    disciplina_id INT NOT NULL REFERENCES disciplina(id),
-    professor_id INT NOT NULL REFERENCES professor(id),
-    semestre VARCHAR(7) NOT NULL,
-    UNIQUE (disciplina_id, professor_id, semestre)
-);
+CREATE TABLE public.aluno (
+  ra character varying(10) NOT NULL,
+  nome character varying(100) NOT NULL,
+  curso_id integer NOT NULL,
+  CONSTRAINT aluno_pkey PRIMARY KEY (ra),
+  CONSTRAINT aluno_curso_id_fkey FOREIGN KEY (curso_id) 
+    REFERENCES curso(id)
+) TABLESPACE pg_default;
 
--- Histórico Escolar
-CREATE TABLE historicoescolar (
-    id SERIAL PRIMARY KEY,
-    aluno_ra VARCHAR(10) NOT NULL REFERENCES aluno(ra),
-    lecionada_id INT NOT NULL REFERENCES lecionada(id),
-    nota DECIMAL(4,2) CHECK (nota BETWEEN 0 AND 10),
-    status VARCHAR(20) NOT NULL CHECK (status IN ('aprovado', 'reprovado')),
-    UNIQUE (aluno_ra, lecionada_id)
-);
+CREATE TABLE public.curso_disciplina (
+  curso_id integer NOT NULL,
+  disciplina_id integer NOT NULL,
+  professor_responsavel_id integer NOT NULL,
+  CONSTRAINT curso_disciplina_pkey PRIMARY KEY (curso_id, disciplina_id),
+  CONSTRAINT curso_disciplina_curso_id_fkey FOREIGN KEY (curso_id) 
+    REFERENCES curso(id),
+  CONSTRAINT curso_disciplina_disciplina_id_fkey FOREIGN KEY (disciplina_id) 
+    REFERENCES disciplina(id),
+  CONSTRAINT curso_disciplina_professor_responsavel_id_fkey FOREIGN KEY (professor_responsavel_id) 
+    REFERENCES professor(id)
+) TABLESPACE pg_default;
 
------------- TCCs ------------
+CREATE TABLE public.lecionada (
+  id serial NOT NULL,
+  disciplina_id integer NOT NULL,
+  professor_id integer NOT NULL,
+  semestre character varying(7) NOT NULL,
+  tipo character varying(20) NULL DEFAULT 'regular'::character varying,
+  CONSTRAINT lecionada_pkey PRIMARY KEY (id),
+  CONSTRAINT lecionada_disciplina_id_professor_id_semestre_key UNIQUE (disciplina_id, professor_id, semestre),
+  CONSTRAINT lecionada_disciplina_id_fkey FOREIGN KEY (disciplina_id) 
+    REFERENCES disciplina(id),
+  CONSTRAINT lecionada_professor_id_fkey FOREIGN KEY (professor_id) 
+    REFERENCES professor(id),
+  CONSTRAINT lecionada_tipo_check CHECK (((tipo)::text = ANY ((ARRAY['regular'::character varying, 'tcc'::character varying])::text[])))
+) TABLESPACE pg_default;
 
--- TCC
-CREATE TABLE tcc (
-    id SERIAL PRIMARY KEY,
-    titulo VARCHAR(200) NOT NULL,
-    orientador_id INT NOT NULL REFERENCES professor(id),
-    semestre VARCHAR(7) NOT NULL
-);
+CREATE TABLE public.tcc (
+  id serial NOT NULL,
+  titulo character varying(200) NOT NULL,
+  orientador_id integer NOT NULL,
+  semestre character varying(7) NOT NULL,
+  lecionada_id integer NULL,
+  CONSTRAINT tcc_pkey PRIMARY KEY (id),
+  CONSTRAINT tcc_lecionada_id_fkey FOREIGN KEY (lecionada_id) 
+    REFERENCES lecionada(id),
+  CONSTRAINT tcc_orientador_id_fkey FOREIGN KEY (orientador_id) 
+    REFERENCES professor(id)
+) TABLESPACE pg_default;
 
--- Alunos por TCC
-CREATE TABLE tcc_aluno (
-    tcc_id INT NOT NULL REFERENCES tcc(id),
-    aluno_ra VARCHAR(10) NOT NULL REFERENCES aluno(ra),
-    PRIMARY KEY (tcc_id, aluno_ra)
-);
+CREATE TABLE public.tcc_aluno (
+  tcc_id integer NOT NULL,
+  aluno_ra character varying(10) NOT NULL,
+  CONSTRAINT tcc_aluno_pkey PRIMARY KEY (tcc_id, aluno_ra),
+  CONSTRAINT tcc_aluno_aluno_ra_fkey FOREIGN KEY (aluno_ra) 
+    REFERENCES aluno(ra),
+  CONSTRAINT tcc_aluno_tcc_id_fkey FOREIGN KEY (tcc_id) 
+    REFERENCES tcc(id)
+) TABLESPACE pg_default;
 
------------- Comando para Reset ------------
-TRUNCATE TABLE 
-    historicoescolar,
-    tcc_aluno,
-    tcc,
-    lecionada,
-    curso_disciplina,
-    aluno,
-    disciplina,
-    curso,
-    professor,
-    departamento 
-RESTART IDENTITY CASCADE;
+CREATE TABLE public.historicoescolar (
+  id serial NOT NULL,
+  aluno_ra character varying(10) NULL,
+  lecionada_id integer NULL,
+  tcc_id integer NULL,
+  nota numeric(4,2) NULL,
+  status character varying(20) NULL,
+  semestre character varying(7) NOT NULL,
+  CONSTRAINT historicoescolar_pkey PRIMARY KEY (id),
+  CONSTRAINT historicoescolar_aluno_ra_fkey FOREIGN KEY (aluno_ra) 
+    REFERENCES aluno(ra),
+  CONSTRAINT historicoescolar_lecionada_id_fkey FOREIGN KEY (lecionada_id) 
+    REFERENCES lecionada(id),
+  CONSTRAINT historicoescolar_tcc_id_fkey FOREIGN KEY (tcc_id) 
+    REFERENCES tcc(id)
+) TABLESPACE pg_default;
