@@ -3,7 +3,9 @@ from supabase import create_client, Client
 import random
 from faker import Faker
 
+# Removed invalid import statement
 fake = Faker('pt_BR')
+fake.seed_instance(42)  # Optional: Set a seed for reproducibility
 
 # Configuração do Supabase (SUA URL E KEY AQUI)
 SUPABASE_URL = "https://brehfssbmphoqgmmckrr.supabase.co"
@@ -19,7 +21,7 @@ def gerar_ra(existing_ra=None):
         ano = str(random.randint(15, 25)).zfill(2)   # Ano entre 15 (2015) e 25 (2025)
         mes = random.choice(['01', '08'])            # Janeiro ou Agosto
         numero = f"{random.randint(10, 99):02}"     # 2 dígitos (10-99)
-        curso_id = random.randint(1, 5)              # ID do curso (1-5)
+        curso_id = random.randint(1, 3)              # ID do curso (1-5)
         novo_ra = f"{ano}.{mes}.{numero}-{curso_id}" # Total: 10 caracteres
         
         # Verifica unicidade
@@ -131,120 +133,106 @@ def criar_turma(disciplina_id, semestre, tipo='regular'):
 # ================================================
 # Geração de histórico acadêmico e TCC
 # ================================================
-
 def gerar_historico_aluno(aluno_ra, curso_id):
-    """Gera histórico acadêmico com tratamento completo de reprovações e semestres adicionais"""
+    """Gera histórico com 3 disciplinas regulares + TCC"""
     try:
         historico = []
-        ano_base = 2000 + int(aluno_ra[:2])  # Extrai ano do RA
+        ano_base = 2000 + int(aluno_ra[:2])
         disciplinas_curso = obter_disciplinas_por_curso(curso_id)
-        disciplinas_pendentes = disciplinas_curso.copy()
-        disciplinas_cursadas = []
+        
+        # Obter o id da disciplina de TCC para filtragem
+        tcc_data = supabase.table("disciplina")\
+                           .select("id")\
+                           .eq("codigo", "TCC001")\
+                           .execute().data
+        if not tcc_data:
+            raise Exception("Disciplina de TCC não encontrada")
+        tcc_disciplina_id = tcc_data[0]['id']
+        
+        # Filtrar para obter apenas disciplinas regulares (excluindo o TCC)
+        disciplinas_regulares_ids = [d for d in disciplinas_curso if d != tcc_disciplina_id]
+        if not disciplinas_regulares_ids:
+            raise Exception("Nenhuma disciplina regular encontrada para o curso")
+        
+        # Seleciona 3 disciplinas regulares
+        disciplinas_regulares = random.sample(disciplinas_regulares_ids, min(3, len(disciplinas_regulares_ids)))
+        disciplinas_pendentes = disciplinas_regulares.copy()
         disciplinas_reprovadas = []
         semestre_atual = 1
-        max_semestres = 8  # Limite máximo de semestres (4 anos)
-        
-        while semestre_atual <= max_semestres:
-            # Calcula ano e período
+        max_semestres = 6  # Limite de 3 anos (6 semestres)
+        tcc_realizado = False
+
+        while semestre_atual <= max_semestres and (disciplinas_pendentes or disciplinas_reprovadas or not tcc_realizado):
             ano = ano_base + ((semestre_atual - 1) // 2)
             periodo = 1 if semestre_atual % 2 == 1 else 2
             semestre = f"{ano}.{periodo}"
             
-            try:
-                # Verifica se pode fazer TCC (último semestre regular ou adicional)
-                pode_fazer_tcc = (not disciplinas_pendentes and not disciplinas_reprovadas)
+            # Verifica se pode fazer o TCC (após aprovar todas as disciplinas regulares)
+            pode_fazer_tcc = not disciplinas_pendentes and not disciplinas_reprovadas
+
+            if pode_fazer_tcc and not tcc_realizado:
+                # Criar e registrar o TCC
+                tcc_info = criar_tcc(aluno_ra, semestre)
+                if not tcc_info:
+                    raise Exception("Falha ao criar TCC")
                 
-                # Se é o 4º semestre ou posterior E pode fazer TCC
-                if semestre_atual >= 4 and pode_fazer_tcc:
-                    # Verifica se já tem TCC no histórico
-                    tem_tcc = any(h.get('tcc_id') for h in historico)
-                    
-                    if not tem_tcc or any(h.get('tcc_id') and h['status'] == 'reprovado' for h in historico):
-                        # Cria ou repete TCC
-                        tcc_data = criar_tcc(aluno_ra, semestre)
-                        if not tcc_data:
-                            raise Exception("Falha ao criar TCC")
-                        
-                        # Gera nota para TCC (mais rigoroso)
-                        nota = round(random.triangular(4, 10, 6.5), 1) if tem_tcc else round(random.triangular(5, 10, 7), 1)
-                        status = "aprovado" if nota >= 5 else "reprovado"
-                        
-                        historico.append({
-                            "aluno_ra": aluno_ra,
-                            "semestre": semestre,
-                            "nota": nota,
-                            "status": status,
-                            "tcc_id": tcc_data['tcc_id'],
-                            "lecionada_id": tcc_data['lecionada_id']
-                        })
-                        
-                        if status == "reprovado":
-                            # Remove TCC aprovado anterior se existir (para recálculo)
-                            historico = [h for h in historico if not (h.get('tcc_id') and h['status'] == 'aprovado')]
-                            
-                        semestre_atual += 1
-                        continue
-                
-                # Se não pode fazer TCC ou precisa repetir disciplina
-                disciplina_id = None
-                
-                # 1. Prioriza disciplinas reprovadas
-                if disciplinas_reprovadas:
-                    disciplina_id = disciplinas_reprovadas.pop(0)
-                # 2. Disciplinas pendentes
-                elif disciplinas_pendentes:
-                    disciplina_id = random.choice(disciplinas_pendentes)
-                    disciplinas_pendentes.remove(disciplina_id)
-                # 3. Todas disciplinas cursadas, mas TCC não liberado
+                # 30% de chance de reprovação no TCC
+                if random.random() < 0.3:
+                    nota = round(random.uniform(0, 4.9), 1)
+                    status = "reprovado"
+                    max_semestres += 1  # Semestre extra para refazer o TCC
                 else:
-                    # Pode acontecer se reprovou em TCC mas não tem disciplinas pendentes
-                    semestre_atual += 1
-                    continue
+                    nota = round(random.uniform(5, 10), 1)
+                    status = "aprovado"
+                    tcc_realizado = True
                 
-                # Cria turma para a disciplina
-                turma = criar_turma(disciplina_id, semestre)
-                if not turma:
-                    raise Exception(f"Turma não criada para disciplina {disciplina_id}")
-                
-                # Gera nota com distribuição adequada
-                ja_cursou = any(h.get('disciplina_id') == disciplina_id for h in historico)
-                
-                if ja_cursou:
-                    # Segunda tentativa - aumenta chance de aprovação
-                    nota = round(random.triangular(4, 10, 6.5), 1)
-                else:
-                    # Primeira tentativa
-                    nota = round(random.triangular(0, 10, 5.5), 1)
-                
-                status = "aprovado" if nota >= 5 else "reprovado"
-                
-                # Adiciona ao histórico
                 historico.append({
                     "aluno_ra": aluno_ra,
                     "semestre": semestre,
                     "nota": nota,
                     "status": status,
-                    "lecionada_id": turma['id'],
-                    "disciplina_id": disciplina_id
+                    "tcc_id": tcc_info['tcc_id'],
+                    "lecionada_id": tcc_info['lecionada_id'],
+                    "tipo": "TCC"
                 })
-                
-                # Atualiza listas de controle
-                if status == "aprovado":
-                    if disciplina_id not in disciplinas_cursadas:
-                        disciplinas_cursadas.append(disciplina_id)
-                else:
-                    if disciplina_id not in disciplinas_reprovadas:
-                        disciplinas_reprovadas.append(disciplina_id)
-                
-                semestre_atual += 1
-
-            except Exception as e:
-                print(f"✗ Erro no semestre {semestre_atual} de {aluno_ra}: {str(e)}")
                 semestre_atual += 1
                 continue
 
-        # Insere histórico no banco de dados
-        registros_validos = 0
+            # Lógica para disciplinas regulares
+            disciplina_id = None
+            if disciplinas_reprovadas:
+                disciplina_id = disciplinas_reprovadas.pop(0)
+            elif disciplinas_pendentes:
+                disciplina_id = disciplinas_pendentes.pop(0)
+            else:
+                semestre_atual += 1
+                continue
+            
+            turma = criar_turma(disciplina_id, semestre)
+            if not turma:
+                raise Exception(f"Turma não criada para disciplina {disciplina_id}")
+            
+            # 10% de chance de reprovação em disciplinas regulares
+            if random.random() < 0.1:
+                nota = round(random.uniform(0, 4.9), 1)
+                status = "reprovado"
+                disciplinas_reprovadas.append(disciplina_id)
+            else:
+                nota = round(random.uniform(5, 10), 1)
+                status = "aprovado"
+            
+            historico.append({
+                "aluno_ra": aluno_ra,
+                "semestre": semestre,
+                "nota": nota,
+                "status": status,
+                "lecionada_id": turma['id'],
+                "disciplina_id": disciplina_id,
+                "tipo": "Disciplina"
+            })
+            semestre_atual += 1
+
+        # Insere histórico no banco
         for registro in historico:
             try:
                 data = {
@@ -254,26 +242,22 @@ def gerar_historico_aluno(aluno_ra, curso_id):
                     "status": registro['status'],
                     "semestre": registro['semestre']
                 }
-                
                 if 'tcc_id' in registro:
                     data["tcc_id"] = registro['tcc_id']
-
                 supabase.table("historicoescolar").insert(data).execute()
-                registros_validos += 1
-                
             except Exception as e:
                 print(f"✗ Falha ao inserir registro de {aluno_ra}: {str(e)}")
                 continue
 
-        print(f"✓ Histórico de {aluno_ra} criado: {registros_validos}/{len(historico)} registros")
+        print(f"✓ Histórico de {aluno_ra} criado: {len(historico)} registros")
         return historico
-    
+
     except Exception as e:
         print(f"✗ Erro fatal no histórico de {aluno_ra}: {str(e)}")
         return []
-    
+
 def criar_tcc(aluno_ra, semestre):
-    """Cria registro completo de TCC com turma específica"""
+    """Cria registro único de TCC com turma específica"""
     try:
         # Obter disciplina de TCC
         disciplina_tcc = supabase.table("disciplina")\
@@ -291,9 +275,9 @@ def criar_tcc(aluno_ra, semestre):
         if not turma_tcc:
             raise Exception("Falha ao criar turma de TCC")
         
-        # Criar registro do TCC
+        # Criar registro do TCC (único por aluno)
         tcc = supabase.table("tcc").insert({
-            "titulo": fake.catch_phrase()[:200],
+            "titulo": f"TCC - {fake.catch_phrase()[:150]}",
             "orientador_id": turma_tcc['professor_id'],
             "semestre": semestre,
             "lecionada_id": turma_tcc['id']
