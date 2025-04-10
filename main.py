@@ -21,7 +21,7 @@ def gerar_ra(existing_ra=None):
         ano = str(random.randint(15, 25)).zfill(2)   # Ano entre 15 (2015) e 25 (2025)
         mes = random.choice(['01', '08'])            # Janeiro ou Agosto
         numero = f"{random.randint(10, 99):02}"     # 2 dígitos (10-99)
-        curso_id = random.randint(1, 3)              # ID do curso (1-5)
+        curso_id = random.randint(1, 5)              # ID do curso (1-5)
         novo_ra = f"{ano}.{mes}.{numero}-{curso_id}" # Total: 10 caracteres
         
         # Verifica unicidade
