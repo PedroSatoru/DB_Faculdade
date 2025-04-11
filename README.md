@@ -29,8 +29,6 @@ O sistema foi desenvolvido para simular o funcionamento de um banco de dados uni
 
 ### Modelo Entidade-Relacionamento (MER)
 
-> *Insira abaixo o diagrama MER utilizando [Mermaid](https://mermaid.js.org/) ou outra ferramenta.*  
-
 Exemplo com Mermaid:
 ```mermaid
 erDiagram
