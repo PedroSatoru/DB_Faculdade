@@ -1,0 +1,58 @@
+-- 1. Departamentos simplificados (2 departamentos)
+INSERT INTO departamento (id, nome) VALUES
+(1, 'TI'),        -- Chefe: Carlos Ferreira
+(2, 'Matemática'); -- Chefe: José Silva
+
+-- 2. Professores (agora com alocações mais simples)
+INSERT INTO professor (id, nome, departamento_id) VALUES
+(1, 'Carlos Ferreira', 1),  -- Chefe de TI e coordenador de CC
+(2, 'Ana Santos', 1),       -- Coordenadora de Ciência de Dados
+(3, 'Pedro Oliveira', 1),   -- Coordenador de Eng. Software
+(4, 'Mariana Costa', 1),
+(5, 'José Silva', 2),       -- Chefe de Matemática
+(6, 'Beatriz Almeida', 1),
+(7, 'Ricardo Pereira', 1),
+(8, 'Fernanda Gomes', 2),   -- Professora de Matemática
+(9, 'Lucas Martins', 1),
+(10, 'Patrícia Lima', 2);   -- Coordenadora de Administração
+
+-- 3. Cursos atualizados (com coordenadores diferentes dos chefes)
+INSERT INTO curso (id, nome, departamento_id, coordenador_id) VALUES
+(1, 'Ciência da Computação', 1, 1),     -- Coord: Carlos (não é chefe)
+(2, 'Engenharia de Software', 1, 3),     -- Coord: Pedro
+(3, 'Matemática Aplicada', 2, 8),        -- Coord: Fernanda (não é chefe)
+(4, 'Ciência de Dados', 1, 2),           -- Coord: Ana
+(5, 'Administração', 2, 10);             -- Coord: Patrícia
+
+-- 4. Atualizando chefes de departamento (garantindo que sejam diferentes dos coordenadores)
+UPDATE departamento SET chefe_id = 1 WHERE id = 1;  -- TI: Carlos
+UPDATE departamento SET chefe_id = 5 WHERE id = 2;  -- Matemática: José
+
+-- 5. Disciplinas simplificadas
+INSERT INTO disciplina (id, codigo, nome, departamento_id) VALUES
+-- TI
+(1, 'CC101', 'Programação I', 1),
+(2, 'CC102', 'Estruturas de Dados', 1),
+(3, 'CC201', 'Bancos de Dados', 1),
+(4, 'CC202', 'Redes', 1),
+(5, 'CD101', 'Análise de Dados', 1),
+-- Matemática
+(6, 'MA101', 'Cálculo I', 2),
+(7, 'MA102', 'Álgebra Linear', 2),
+(8, 'MA201', 'Estatística', 2),
+-- TCC (cada departamento tem seu próprio TCC)
+(9, 'TCC001', 'TCC em TI', 1),
+(10, 'TCC002', 'TCC em Matemática', 2);
+
+-- 6. Matriz curricular atualizada
+INSERT INTO curso_disciplina (curso_id, disciplina_id, professor_responsavel_id) VALUES
+-- Ciência da Computação (TI)
+(1, 1, 1), (1, 2, 2), (1, 3, 7), (1, 4, 4), (1, 9, 1),
+-- Eng. Software (TI)
+(2, 1, 3), (2, 2, 3), (2, 3, 4), (2, 4, 4), (2, 9, 3),
+-- Ciência de Dados (TI)
+(4, 1, 2), (4, 3, 7), (4, 5, 6), (4, 8, 6), (4, 9, 2),
+-- Matemática Aplicada
+(3, 6, 5), (3, 7, 8), (3, 8, 8), (3, 10, 8),
+-- Administração
+(5, 6, 10), (5, 8, 10), (5, 3, 10), (5, 10, 10);xxxx  
