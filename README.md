@@ -106,9 +106,26 @@ erDiagram
     ALUNO ||--o{ HISTORICOESCOLAR : "tem"
 ```
 
-### Modelo Relacional na 3FN
+## 📘 Modelo Relacional (3FN)
 
-Os modelos relacionais seguem as definições apresentadas no arquivo [tabelas_SQL.txt](tabelas_SQL.txt), garantindo que todas as tabelas estejam na Terceira Forma Normal (3FN) e com as devidas constraints (chaves primárias, estrangeiras, únicas, etc.).
+O modelo relacional apresentado foi desenvolvido com base nas definições do arquivo [tabelas_SQL.txt](tabelas_SQL.txt).  
+Todas as tabelas seguem os princípios da Terceira Forma Normal (3FN), assegurando a integridade dos dados e a eliminação de redundâncias.  
+As constraints (chaves primárias, estrangeiras, únicas, etc.) estão corretamente aplicadas.
+
+## 🧩 Modelo Entidade-Relacionamento (MER)
+
+O Modelo Entidade-Relacionamento (MER) foi desenvolvido utilizando a ferramenta [ERDPlus](https://erdplus.com/), com base no modelo relacional descrito acima.  
+O diagrama contempla:
+
+- Todas as entidades relevantes;
+- Relacionamentos entre as entidades;
+- Cardinalidades (conectividades) de cada relação.
+
+### 🔽 Diagrama MER
+
+![image](https://github.com/user-attachments/assets/920d60e2-79ca-4d13-bf9e-cda67081c685)
+
+
 
 ## Estrutura do Projeto
 
@@ -184,9 +201,7 @@ Consulte o arquivo `queries.py` para visualizar o código completo de cada query
 
 - **Pedro H. Satoru Lima Takahashi** – RA: 22.123.019-6   
 - **Pedro H. Correia de Oliveira** – RA: XXXXXXX  
-- **Paulo Hudson J. da Silva** – RA: XXXXXXX  
-
-*(Substitua pelos nomes e RAs reais dos integrantes.)*
+- **Paulo Hudson J. da Silva** – RA: 22.222.013-9 
 
 ## Observações
 
