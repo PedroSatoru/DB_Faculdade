@@ -112,6 +112,8 @@ O modelo relacional apresentado foi desenvolvido com base nas definições do ar
 Todas as tabelas seguem os princípios da Terceira Forma Normal (3FN), assegurando a integridade dos dados e a eliminação de redundâncias.  
 As constraints (chaves primárias, estrangeiras, únicas, etc.) estão corretamente aplicadas.
 
+![image](https://github.com/PedroSatoru/DB_Faculdade/blob/main/Descri%C3%A7%C3%A3o_e_Imagens/Fluxo_supabese.png)
+
 ## 🧩 Modelo Entidade-Relacionamento (MER)
 
 O Modelo Entidade-Relacionamento (MER) foi desenvolvido utilizando a ferramenta [ERDPlus](https://erdplus.com/), com base no modelo relacional descrito acima.  
