@@ -141,12 +141,12 @@ O diagrama contempla:
 - **DescriçãoProjeto.txt**  
   Documento com a descrição do projeto e os requisitos da entrega.
 
-- **chaves.env**  
-  Arquivo que contém as chaves e URL do Supabase. **Atenção:** Este arquivo não será enviado para o GitHub, pois está listado no .gitignore.  
+- **.env**  
+  Arquivo que contém as chaves e URL do Supabase.  
   Exemplo de conteúdo:
   ```plaintext
   SUPABASE_URL="https://abcdefg.supabase.co"
-  SUPABASE_KEY="eyJhbGciOiJIUzII6ImFub24iLCJpYXQiOjE3NDI5NDIxMzgsImV4cC7ktYaEcBVFotK5MJMp0Qo"
+  SUPABASE_KEY="eyJhbGciOiJIUzIOjE3NDI5NDIxMzgsImV4cC7ktYaEcBVFotK5MJMp0Qo"
   ```
 
 ## Como Executar
@@ -169,17 +169,15 @@ pip install python-dotenv
 ### Configuração do Ambiente
 
 1. **Arquivo de Variáveis de Ambiente:**  
-   Certifique-se de que o arquivo `chaves.env` esteja na raiz do projeto. Esse arquivo contém suas credenciais do Supabase e **não** será enviado para o GitHub, pois está listado no .gitignore.
+   Certifique-se de que o arquivo `.env` esteja na raiz do projeto. Nele acrescente as chaves de sua DB do supabase. 
    
 2. **Carregamento das Variáveis:**  
    No início do arquivo `main.py`, as variáveis são carregadas utilizando o python-dotenv:
    ```python
    from dotenv import load_dotenv
-   load_dotenv('chaves.env')
+   load_dotenv()
    ```
    
-   Caso deseje, renomeie o arquivo `chaves.env` para `.env` e ajuste a chamada para `load_dotenv()` sem argumentos, já que por padrão ele procura o arquivo `.env` na raiz do projeto.
-
 ### Criação das Tabelas
 
 1. Acesse o editor SQL do Supabase.
