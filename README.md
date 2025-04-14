@@ -141,6 +141,14 @@ O diagrama contempla:
 - **DescriçãoProjeto.txt**  
   Documento com a descrição do projeto e os requisitos da entrega.
 
+- **chaves.env**  
+  Arquivo que contém as chaves e URL do Supabase. **Atenção:** Este arquivo não será enviado para o GitHub, pois está listado no .gitignore.  
+  Exemplo de conteúdo:
+  ```plaintext
+  SUPABASE_URL="https://abcdefg.supabase.co"
+  SUPABASE_KEY="eyJhbGciOiJIUzII6ImFub24iLCJpYXQiOjE3NDI5NDIxMzgsImV4cC7ktYaEcBVFotK5MJMp0Qo"
+  ```
+
 ## Como Executar
 
 ### Pré-requisitos
@@ -155,11 +163,22 @@ No terminal, execute os seguintes comandos para instalar as dependências:
 ```
 pip install supabase
 pip install faker
+pip install python-dotenv
 ```
 
-### Configuração do Supabase
+### Configuração do Ambiente
 
-No arquivo `BancoDados.py`, configure as variáveis `SUPABASE_URL` e `SUPABASE_KEY` com os dados do seu projeto Supabase.
+1. **Arquivo de Variáveis de Ambiente:**  
+   Certifique-se de que o arquivo `chaves.env` esteja na raiz do projeto. Esse arquivo contém suas credenciais do Supabase e **não** será enviado para o GitHub, pois está listado no .gitignore.
+   
+2. **Carregamento das Variáveis:**  
+   No início do arquivo `BancoDados.py`, as variáveis são carregadas utilizando o python-dotenv:
+   ```python
+   from dotenv import load_dotenv
+   load_dotenv('chaves.env')
+   ```
+   
+   Caso deseje, renomeie o arquivo `chaves.env` para `.env` e ajuste a chamada para `load_dotenv()` sem argumentos, já que por padrão ele procura o arquivo `.env` na raiz do projeto.
 
 ### Criação das Tabelas
 
