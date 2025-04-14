@@ -1,15 +1,17 @@
 import os
+from dotenv import load_dotenv
+load_dotenv('chaves.env')
 from supabase import create_client, Client
 import random
 from faker import Faker
 
-# Removed invalid import statement
+# Gerar nomes e frases em português
 fake = Faker('pt_BR')
-fake.seed_instance(42)  # Optional: Set a seed for reproducibility
+fake.seed_instance(42)  
 
 # Configuração do Supabase (SUA URL E KEY AQUI)
-SUPABASE_URL = "https://brehfssbmphoqgmmckrr.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZWhmc3NibXBob3FnbW1ja3JyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI5NDIxMzgsImV4cCI6MjA1ODUxODEzOH0.g7EPcTSKw5froygzwKFKGh7ktYaEcBVFotK5MJMp0Qo"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ================================================
@@ -308,7 +310,7 @@ def criar_tcc(aluno_ra, semestre):
 def main():
     try:
         # Criar alunos
-        alunos = criar_alunos(10)
+        alunos = criar_alunos(1)
         
         # Gerar histórico para cada aluno
         for aluno in alunos:
