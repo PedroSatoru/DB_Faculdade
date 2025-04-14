@@ -172,7 +172,7 @@ pip install python-dotenv
    Certifique-se de que o arquivo `chaves.env` esteja na raiz do projeto. Esse arquivo contém suas credenciais do Supabase e **não** será enviado para o GitHub, pois está listado no .gitignore.
    
 2. **Carregamento das Variáveis:**  
-   No início do arquivo `BancoDados.py`, as variáveis são carregadas utilizando o python-dotenv:
+   No início do arquivo `main.py`, as variáveis são carregadas utilizando o python-dotenv:
    ```python
    from dotenv import load_dotenv
    load_dotenv('chaves.env')
@@ -190,7 +190,7 @@ pip install python-dotenv
 Após configurar e criar as tabelas, execute o script para popular o banco de dados:
 
 ```
-python BancoDados.py
+python main.py
 ```
 
 ### Execução das Queries
