@@ -200,7 +200,7 @@ Consulte o arquivo `queries.py` para visualizar o código completo de cada query
 ## Equipe
 
 - **Pedro H. Satoru Lima Takahashi** – RA: 22.123.019-6   
-- **Pedro H. Correia de Oliveira** – RA: XXXXXXX  
+- **Pedro H. Correia de Oliveira** – RA: 22.222.009-7  
 - **Paulo Hudson J. da Silva** – RA: 22.222.013-9 
 
 ## Observações
