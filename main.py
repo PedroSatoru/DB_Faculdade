@@ -86,6 +86,10 @@ def criar_alunos(quantidade=20):
 def criar_turma(disciplina_id, semestre, tipo='regular'):
     """Cria ou obtém turma existente com tipo específico"""
     try:
+        # Verificar se a disciplina é um TCC
+        if disciplina_id in [9, 10]:  # IDs das disciplinas de TCC
+            tipo = 'tcc'
+
         # Verificar se turma já existe
         existing = supabase.table("lecionada")\
                         .select("*")\
