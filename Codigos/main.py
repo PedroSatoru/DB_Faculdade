@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-load_dotenv('chaves.env')
+load_dotenv()
 from supabase import create_client, Client
 import random
 from faker import Faker
@@ -9,7 +9,7 @@ from faker import Faker
 fake = Faker('pt_BR')
 fake.seed_instance(42)  
 
-# Configuração do Supabase (SUA URL E KEY AQUI)
+# Chaves importadas do .env
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -17,8 +17,9 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # ================================================
 # Função gerar_ra() melhorada para evitar colisões
 # ================================================
+
+# Gera RA único no formato AA.MM.NN-C (10 caracteres)
 def gerar_ra(existing_ra=None):
-    """Gera RA único no formato AA.MM.NN-C (10 caracteres)"""
     while True:
         ano = str(random.randint(15, 25)).zfill(2)   # Ano entre 15 (2015) e 25 (2025)
         mes = random.choice(['01', '08'])            # Janeiro ou Agosto
@@ -30,9 +31,8 @@ def gerar_ra(existing_ra=None):
         if existing_ra is None or novo_ra not in existing_ra:
             return novo_ra
 
-
+# Obtém disciplinas da matriz curricular do curso
 def obter_disciplinas_por_curso(curso_id):
-    """Obtém disciplinas da matriz curricular do curso"""
     response = supabase.table("curso_disciplina")\
                     .select("disciplina_id")\
                     .eq("curso_id", curso_id)\
@@ -43,8 +43,9 @@ def obter_disciplinas_por_curso(curso_id):
 # Funções para criação de entidades
 # ================================================
 
+#Cria alunos com RAs únicos
 def criar_alunos(quantidade=20):
-    """Cria alunos com RAs únicos"""
+    
     try:
         alunos = []
         ras_gerados = set()
@@ -69,7 +70,7 @@ def criar_alunos(quantidade=20):
             
             alunos.append({
                 "ra": ra,
-                "nome": fake.name()[:100],  # Limite de 100 caracteres
+                "nome": fake.name()[:100],  # Gerar nome aleatorio
                 "curso_id": curso_id
             })
         
@@ -84,9 +85,8 @@ def criar_alunos(quantidade=20):
         print(f"✗ Erro ao criar alunos: {str(e)}")
         return []
 
-
+# Cria ou obtém turma existente com tipo específico 
 def criar_turma(disciplina_id, semestre, tipo='regular'):
-    """Cria ou obtém turma existente com tipo específico"""
     try:
         # Verificar se a disciplina é um TCC
         if disciplina_id in [9, 10]:  # IDs das disciplinas de TCC
@@ -139,8 +139,9 @@ def criar_turma(disciplina_id, semestre, tipo='regular'):
 # ================================================
 # Geração de histórico acadêmico e TCC
 # ================================================
+
+# Gera histórico com 3 disciplinas regulares + TCC
 def gerar_historico_aluno(aluno_ra, curso_id):
-    """Gera histórico com 3 disciplinas regulares + TCC"""
     try:
         historico = []
         ano_base = 2000 + int(aluno_ra[:2])
@@ -262,8 +263,9 @@ def gerar_historico_aluno(aluno_ra, curso_id):
         print(f"✗ Erro fatal no histórico de {aluno_ra}: {str(e)}")
         return []
 
+# Cria registro único de TCC com turma específica
 def criar_tcc(aluno_ra, semestre):
-    """Cria registro único de TCC com turma específica"""
+    
     try:
         # Obter disciplina de TCC
         disciplina_tcc = supabase.table("disciplina")\
@@ -310,7 +312,7 @@ def criar_tcc(aluno_ra, semestre):
 def main():
     try:
         # Criar alunos
-        alunos = criar_alunos(1)
+        alunos = criar_alunos(10)
         
         # Gerar histórico para cada aluno
         for aluno in alunos:
