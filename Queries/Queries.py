@@ -1,17 +1,17 @@
 
 
-#Todas as querrys que serão utilizadas no projeto estão aqui, para facilitar a manutenção e o uso.
-#As querrys principais estão no começo do arquivo, e as querrys extras estão no final do arquivo.
+#Todas as Queries que serão utilizadas no projeto estão aqui, para facilitar a manutenção e o uso.
+#As Queries principais estão no começo do arquivo, e as Queries extras estão no final do arquivo.
 
 
-#Querrys principais:
+#Queries principais:
 #Mostre todo o histórico escolar de um aluno que teve reprovação em uma disciplina, retornando inclusive a reprovação em um semestre e a aprovação no semestre seguinte;
 #Mostre todos os TCCs orientados por um professor junto com os nomes dos alunos que fizeram o projeto;
 #Mostre a matriz curicular de pelo menos 2 cursos diferentes que possuem disciplinas em comum (e.g., Ciência da Computação e Ciência de Dados). Este exercício deve ser dividido em 2 queries sendo uma para cada curso;
 #Para um determinado aluno, mostre os códigos e nomes das diciplinas já cursadas junto com os nomes dos professores que lecionaram a disciplina para o aluno;
-#Liste todos os chefes de departamento e coordenadores de curso em apenas uma query de forma que a primeira coluna seja o nome do professor, a segunda o nome do departamento coordena e a terceira o nome do curso que coordena. Substitua os campos em branco do resultado da query pelo texto "nenhum"
+#Liste todos os chefes de departamento e coordenadores de curso em apenas uma Querie de forma que a primeira coluna seja o nome do professor, a segunda o nome do departamento coordena e a terceira o nome do curso que coordena. Substitua os campos em branco do resultado da Querie pelo texto "nenhum"
 
-#Querrys extras:
+#Queries extras:
 #01. Encontre os nomes de todos os estudantes.
 #02. Liste os IDs e nomes de todos os professores
 #07. Encontre os nomes de todos os estudantes que cursaram "Banco de Dados" (course_id = 'CS-101').
@@ -24,9 +24,9 @@
 #50. Liste os nomes dos estudantes que não cursaram nenhum curso no departamento de "Engenharia".
 
 
-# querrys principais#
+# queries principais#
 
-#Querry 1, aluno e reprovações#
+#Querie 1, aluno e reprovações#
 """
 SELECT 
     a.ra AS "RA do Aluno",
@@ -76,8 +76,8 @@ ORDER BY
     "Disciplina/TCC";
 """
 
-#Querry 2, tccs, alunos e professores#
-query2 = """
+#Querie 2, tccs, alunos e professores#
+Querie2 = """
 SELECT t.titulo, p.nome AS orientador, a.nome AS aluno
 FROM tcc t
 JOIN professor p ON t.orientador_id = p.id
@@ -85,8 +85,8 @@ JOIN tcc_aluno ta ON t.id = ta.tcc_id
 JOIN aluno a ON ta.aluno_ra = a.ra
 WHERE p.id = 2;
 """
-#Querry 3, aulas em comum#
-query3 = """
+#Querie 3, aulas em comum#
+Querie3 = """
 SELECT d.codigo, d.nome AS disciplina, p.nome AS professor_responsavel
 FROM curso_disciplina cd
 JOIN disciplina d ON cd.disciplina_id = d.id
@@ -101,9 +101,9 @@ JOIN professor p ON cd.professor_responsavel_id = p.id
 WHERE cd.curso_id = 1
 ORDER BY d.codigo;"""""
 
-#Querry 4, aluno, disciplina e professor responsável#
+#Querie 4, aluno, disciplina e professor responsável#
 
-query4 = """
+Querie4 = """
 SELECT d.codigo, d.nome AS disciplina, p.nome AS professor
 FROM historicoescolar h
 JOIN lecionada l ON h.lecionada_id = l.id
@@ -113,8 +113,8 @@ WHERE h.aluno_ra = '17.08.80-3'
 AND h.status = 'aprovado'
 ORDER BY h.semestre;"""
 
-#Querry 5, coordenador e chefe de departamento#
-query5= """
+#Querie 5, coordenador e chefe de departamento#
+Querie5= """
 SELECT 
     p.nome AS professor,
     COALESCE(d.nome, 'nenhum') AS departamento_chefiado,
@@ -127,15 +127,15 @@ ORDER BY p.nome;
 """
 
 
-#Querrys extras#
-#Querry 6, nomes de todos os estudantes
-query6 = """
+#Queries extras#
+#Querie 6, nomes de todos os estudantes
+Querie6 = """
 SELECT nome FROM aluno ORDER BY nome;
 """
-#Querry 7, IDs e nomes de todos os professores
+#Querie 7, IDs e nomes de todos os professores
 
-query7 = """
--- Query básica: IDs e nomes de todos os professores
+Querie7 = """
+-- Querie básica: IDs e nomes de todos os professores
 SELECT 
     id AS "ID",
     nome AS "Nome do Professor"
@@ -145,9 +145,9 @@ ORDER BY
     id;;
 """
 
-#Querry 8, nomes de todos os estudantes que cursaram "Banco de Dados" (course_id = 'CC-201')
+#Querie 8, nomes de todos os estudantes que cursaram "Banco de Dados" (course_id = 'CC-201')
 
-query8 = """
+Querie8 = """
 SELECT DISTINCT
     a.nome AS "Nome do Estudante",
     a.ra AS "RA",
@@ -166,9 +166,9 @@ WHERE
 ORDER BY
     a.nome, h.semestre;
     """
-#Querry 9, número total de estudantes que cursaram "Estrutura de Dados" (course_id = 'CC-102').
+#Querie 9, número total de estudantes que cursaram "Estrutura de Dados" (course_id = 'CC-102').
 
-query9 = """
+Querie9 = """
 SELECT COUNT(DISTINCT a.ra) AS "Total de Estudantes que Cursaram Estruturas de Dados"
 FROM aluno a
 JOIN historicoescolar h ON a.ra = h.aluno_ra
@@ -177,9 +177,9 @@ JOIN disciplina d ON l.disciplina_id = d.id
 WHERE d.nome = 'Estruturas de Dados';
 """
 
-#Querry 10, nomes e IDs dos estudantes que são orientados por um professor específico).
+#Querie 10, nomes e IDs dos estudantes que são orientados por um professor específico).
 
-query10 = """
+Querie10 = """
 SELECT DISTINCT 
     a.ra AS "RA",
     a.nome AS "Aluno",
@@ -197,8 +197,8 @@ WHERE
 ORDER BY 
     a.nome;
     """
-#Querry 11, estudantes que estão matriculados em cursos oferecidos pelo departamento de TI
-query11 = """
+#Querie 11, estudantes que estão matriculados em cursos oferecidos pelo departamento de TI
+Querie11 = """
 SELECT 
     a.ra AS "RA",
     a.nome AS "Nome do Aluno",
@@ -215,9 +215,9 @@ WHERE
 ORDER BY 
     a.nome;
     """
-#Querry 12, nomes dos estudantes que cursaram um curso em todos os departamentos.
+#Querie 12, nomes dos estudantes que cursaram um curso em todos os departamentos.
 
-query12 = """
+Querie12 = """
 SELECT 
     a.nome AS "Estudante",
     a.ra AS "RA",
@@ -232,9 +232,9 @@ HAVING COUNT(DISTINCT d.id) = (SELECT COUNT(*) FROM departamento)
 ORDER BY a.nome;
 """
 
-#Querry 13,  Liste os cursos que foram ministrados por mais de um professor em semestres diferentes.
+#Querie 13,  Liste os cursos que foram ministrados por mais de um professor em semestres diferentes.
 
-query13 = """
+Querie13 = """
 SELECT 
     c.nome AS "Curso",
     d.nome AS "Disciplina",
@@ -254,9 +254,9 @@ HAVING
 ORDER BY 
     c.nome, d.nome;
 """
-#Querry 14, Encontre o número de alunos matriculados em cada curso e liste-os por título de curso
+#Querie 14, Encontre o número de alunos matriculados em cada curso e liste-os por título de curso
 
-query14 = """
+Querie14 = """
 SELECT 
     c.nome AS "Curso",
     COUNT(a.ra) AS "Número de Alunos Matriculados"
@@ -269,9 +269,9 @@ GROUP BY
 ORDER BY 
     COUNT(a.ra) DESC, c.nome;
 """
-#Querry 15, nomes dos estudantes que não cursaram nenhum curso no departamento de "Matematica".
+#Querie 15, nomes dos estudantes que não cursaram nenhum curso no departamento de "Matematica".
 
-query15 = """
+Querie15 = """
 SELECT
     a.nome AS "Estudante",
     STRING_AGG(DISTINCT di.nome, ', ' ORDER BY di.nome) AS "Disciplinas Cursadas"
