@@ -75,7 +75,6 @@ erDiagram
       int id PK
       string titulo
       int orientador_id FK
-      string semestre
       int lecionada_id FK
     }
     TCC_ALUNO {
@@ -89,7 +88,7 @@ erDiagram
       int tcc_id FK
       numeric nota
       string status
-      string semestre
+      int tcc_id FK
     }
 
     DEPARTAMENTO ||--o{ PROFESSOR : "possui"
