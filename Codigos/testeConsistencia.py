@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from supabase import create_client, Client
 import pandas as pd
+import os
 
 # Configuração do Supabase
 SUPABASE_URL = os.getenv("SUPABASE_URL")
