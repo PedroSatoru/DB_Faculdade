@@ -125,7 +125,8 @@ O diagrama contempla:
 
 ### 🔽 Diagrama MER
 
-![image](https://github.com/user-attachments/assets/920d60e2-79ca-4d13-bf9e-cda67081c685)
+
+![image](https://github.com/user-attachments/assets/11e4177f-bf1e-4dc0-9459-a41ec17ea4dc)
 
 
 
