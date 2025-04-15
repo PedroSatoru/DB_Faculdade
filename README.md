@@ -11,6 +11,7 @@ Este projeto implementa um sistema de banco de dados para uma universidade. O si
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Como Executar](#como-executar)
 - [Queries SQL](#queries-sql)
+- [Teste de Consistência](#teste-de-consistência)
 - [Equipe](#equipe)
 - [Observações](#observações)
 
@@ -223,6 +224,33 @@ O projeto inclui diversas queries SQL, separadas em:
   São 10 queries extras que exploram outros aspectos do banco, como listagem de estudantes, professores, disciplinas específicas, entre outras estatísticas.
 
 Consulte o arquivo `queries.py` para visualizar o código completo de cada query.
+
+## Teste de Consistência
+
+O arquivo `testeConsistencia.py` foi desenvolvido para validar a integridade dos dados inseridos no banco. Nele, são realizadas as seguintes verificações:
+
+- **Chaves Estrangeiras (FKs):**  
+  Confere se os relacionamentos entre as tabelas estão consistentes (por exemplo, aluno/curso, professor/departamento, etc.).
+
+- **Consistência de Dados Específicos:**  
+  Verifica se os chefes de departamento e coordenadores de curso pertencem ao departamento correto, se as disciplinas do tipo TCC estão corretamente marcadas, dentre outras validações.
+
+- **Verificação de Nulos e Duplicatas:**  
+  Identifica colunas com dados nulos e registros duplicados que possam comprometer a integridade dos dados.
+
+- **Aprovação/Reprovação:**  
+  Confere se os alunos aprovados possuem nota mínima (>= 5) e se os reprovados não ultrapassam essa mesma faixa.
+
+### Requisitos para execução
+
+- Python 3.8 ou superior.
+- Dependências: `supabase`, `pandas`, `python-dotenv`
+
+Instale as dependências necessárias executando:
+
+````bash
+pip install supabase pandas python-dotenv
+`````
 
 ## Equipe
 
