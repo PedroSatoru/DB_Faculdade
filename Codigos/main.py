@@ -322,7 +322,7 @@ def criar_tcc(aluno_ra, semestre, codigo_tcc):
 def main():
     try:
         # Criar alunos
-        alunos = criar_alunos(5)
+        alunos = criar_alunos(20)
         
         # Gerar histórico para cada aluno
         for aluno in alunos:

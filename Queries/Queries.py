@@ -135,14 +135,13 @@ SELECT nome FROM aluno ORDER BY nome;
 #Querie 7, IDs e nomes de todos os professores
 
 Querie7 = """
--- Querie básica: IDs e nomes de todos os professores
 SELECT 
     id AS "ID",
     nome AS "Nome do Professor"
 FROM 
     professor
 ORDER BY 
-    id;;
+    id;
 """
 
 #Querie 8, nomes de todos os estudantes que cursaram "Banco de Dados" (course_id = 'CC-201')
@@ -211,7 +210,7 @@ JOIN
 JOIN 
     departamento d ON c.departamento_id = d.id
 WHERE 
-    d.id = 2  -- Substitua pelo ID do departamento desejado
+    d.id = 1  
 ORDER BY 
     a.nome;
     """
