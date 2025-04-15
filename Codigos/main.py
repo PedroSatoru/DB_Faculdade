@@ -147,10 +147,20 @@ def gerar_historico_aluno(aluno_ra, curso_id):
         ano_base = 2000 + int(aluno_ra[:2])
         disciplinas_curso = obter_disciplinas_por_curso(curso_id)
         
+        # Obter código correto da disciplina de TCC com base no departamento do curso
+        curso_info = supabase.table("curso")\
+                             .select("departamento_id")\
+                             .eq("id", curso_id)\
+                             .execute().data[0]
+        if curso_info["departamento_id"] == 2:
+            codigo_tcc = "TCC002"
+        else:
+            codigo_tcc = "TCC001"
+        
         # Obter o id da disciplina de TCC para filtragem
         tcc_data = supabase.table("disciplina")\
                            .select("id")\
-                           .eq("codigo", "TCC001")\
+                           .eq("codigo", codigo_tcc)\
                            .execute().data
         if not tcc_data:
             raise Exception("Disciplina de TCC não encontrada")
@@ -178,8 +188,8 @@ def gerar_historico_aluno(aluno_ra, curso_id):
             pode_fazer_tcc = not disciplinas_pendentes and not disciplinas_reprovadas
 
             if pode_fazer_tcc and not tcc_realizado:
-                # Criar e registrar o TCC
-                tcc_info = criar_tcc(aluno_ra, semestre)
+                # Criar e registrar o TCC passando o código correto
+                tcc_info = criar_tcc(aluno_ra, semestre, codigo_tcc)
                 if not tcc_info:
                     raise Exception("Falha ao criar TCC")
                 
@@ -264,13 +274,12 @@ def gerar_historico_aluno(aluno_ra, curso_id):
         return []
 
 # Cria registro único de TCC com turma específica
-def criar_tcc(aluno_ra, semestre):
-    
+def criar_tcc(aluno_ra, semestre, codigo_tcc):
     try:
-        # Obter disciplina de TCC
+        # Obter disciplina de TCC com base no código passado
         disciplina_tcc = supabase.table("disciplina")\
                                .select("id")\
-                               .eq("codigo", "TCC001")\
+                               .eq("codigo", codigo_tcc)\
                                .execute().data
         
         if not disciplina_tcc:
@@ -305,6 +314,7 @@ def criar_tcc(aluno_ra, semestre):
     except Exception as e:
         print(f"✗ Erro ao criar TCC: {str(e)}")
         return None
+
 # ================================================
 # Execução principal
 # ================================================
