@@ -2,8 +2,8 @@ from supabase import create_client, Client
 import pandas as pd
 
 # Configuração do Supabase
-SUPABASE_URL = "https://szrslnszdngqgkfepixy.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6cnNsbnN6ZG5ncWdrZmVwaXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1MDAzMTAsImV4cCI6MjA2MDA3NjMxMH0.96N7qMlGcfG9vPNnAvwuPVx7a8gGPVo4lO-wlJPYybo"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
