@@ -291,9 +291,21 @@ def criar_tcc(aluno_ra, semestre, codigo_tcc):
         if not turma_tcc:
             raise Exception("Falha ao criar turma de TCC")
         
+        # Geração de título único para o TCC
+        titulo = None
+        while True:
+            titulo = f"TCC - {fake.unique.catch_phrase()[:150]}"
+            # Verifica se já existe um TCC com esse título no banco
+            tit_existente = supabase.table("tcc")\
+                                    .select("id")\
+                                    .eq("titulo", titulo)\
+                                    .execute().data
+            if not tit_existente:
+                break
+        
         # Criar registro do TCC (único por aluno)
         tcc = supabase.table("tcc").insert({
-            "titulo": f"TCC - {fake.catch_phrase()[:150]}",
+            "titulo": titulo,
             "orientador_id": turma_tcc['professor_id'],
             "lecionada_id": turma_tcc['id']
         }).execute().data[0]
