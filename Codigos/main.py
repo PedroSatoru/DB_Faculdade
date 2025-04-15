@@ -256,8 +256,7 @@ def gerar_historico_aluno(aluno_ra, curso_id):
                     "aluno_ra": registro['aluno_ra'],
                     "lecionada_id": registro.get('lecionada_id'),
                     "nota": registro['nota'],
-                    "status": registro['status'],
-                    "semestre": registro['semestre']
+                    "status": registro['status']
                 }
                 if 'tcc_id' in registro:
                     data["tcc_id"] = registro['tcc_id']
@@ -296,7 +295,6 @@ def criar_tcc(aluno_ra, semestre, codigo_tcc):
         tcc = supabase.table("tcc").insert({
             "titulo": f"TCC - {fake.catch_phrase()[:150]}",
             "orientador_id": turma_tcc['professor_id'],
-            "semestre": semestre,
             "lecionada_id": turma_tcc['id']
         }).execute().data[0]
         
@@ -322,7 +320,7 @@ def criar_tcc(aluno_ra, semestre, codigo_tcc):
 def main():
     try:
         # Criar alunos
-        alunos = criar_alunos(20)
+        alunos = criar_alunos(10)
         
         # Gerar histórico para cada aluno
         for aluno in alunos:

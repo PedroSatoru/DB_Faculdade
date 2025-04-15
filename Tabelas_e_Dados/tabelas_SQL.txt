@@ -107,7 +107,6 @@ CREATE TABLE public.tcc (
   id serial NOT NULL,
   titulo character varying(200) NOT NULL,
   orientador_id integer NOT NULL,
-  semestre character varying(7) NOT NULL,
   lecionada_id integer NULL,
   CONSTRAINT tcc_pkey PRIMARY KEY (id),
   CONSTRAINT tcc_lecionada_id_fkey FOREIGN KEY (lecionada_id) 
@@ -133,7 +132,6 @@ CREATE TABLE public.historicoescolar (
   tcc_id integer NULL,
   nota numeric(4,2) NULL,
   status character varying(20) NULL,
-  semestre character varying(7) NOT NULL,
   CONSTRAINT historicoescolar_pkey PRIMARY KEY (id),
   CONSTRAINT historicoescolar_aluno_ra_fkey FOREIGN KEY (aluno_ra) 
     REFERENCES aluno(ra),

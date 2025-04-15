@@ -32,7 +32,7 @@ SELECT
     a.ra AS "RA do Aluno",
     a.nome AS "Nome do Aluno",
     c.nome AS "Curso",
-    he.semestre AS "Semestre",
+    l.semestre AS "Semestre",
     CASE 
         WHEN he.lecionada_id IS NOT NULL THEN d.nome
         WHEN he.tcc_id IS NOT NULL THEN 'TCC: ' || t.titulo
@@ -68,10 +68,10 @@ LEFT JOIN
 LEFT JOIN 
     professor prof_orientador ON t.orientador_id = prof_orientador.id
 WHERE 
-    a.ra = '25.01.71-4'  -- Substitua pelo RA do aluno desejado
+    a.ra = '21.08.55-1'  -- Substitua pelo RA do aluno desejado
     -- Ou use: a.nome = 'Nome do Aluno' para buscar por nome
 ORDER BY 
-    he.semestre, 
+    l.semestre, 
     CASE WHEN he.lecionada_id IS NOT NULL THEN 1 ELSE 2 END,
     "Disciplina/TCC";
 """
@@ -93,6 +93,8 @@ JOIN disciplina d ON cd.disciplina_id = d.id
 JOIN professor p ON cd.professor_responsavel_id = p.id
 WHERE cd.curso_id = 4
 ORDER BY d.codigo;"""
+
+
 """""
 SELECT d.codigo, d.nome AS disciplina, p.nome AS professor_responsavel
 FROM curso_disciplina cd
@@ -109,12 +111,14 @@ FROM historicoescolar h
 JOIN lecionada l ON h.lecionada_id = l.id
 JOIN disciplina d ON l.disciplina_id = d.id
 JOIN professor p ON l.professor_id = p.id
-WHERE h.aluno_ra = '17.08.80-3'
+WHERE h.aluno_ra = '21.08.55-1'
 AND h.status = 'aprovado'
-ORDER BY h.semestre;"""
+ORDER BY l.semestre;
+"""
 
 #Querie 5, coordenador e chefe de departamento#
 Querie5= """
+
 SELECT 
     p.nome AS professor,
     COALESCE(d.nome, 'nenhum') AS departamento_chefiado,
@@ -124,6 +128,7 @@ LEFT JOIN departamento d ON p.id = d.chefe_id
 LEFT JOIN curso c ON p.id = c.coordenador_id
 WHERE d.chefe_id IS NOT NULL OR c.coordenador_id IS NOT NULL
 ORDER BY p.nome;
+
 """
 
 
@@ -147,13 +152,15 @@ ORDER BY
 #Querie 8, nomes de todos os estudantes que cursaram "Banco de Dados" (course_id = 'CC-201')
 
 Querie8 = """
+
 SELECT DISTINCT
-    a.nome AS "Nome do Estudante",
+a.nome AS "Nome do Estudante",
     a.ra AS "RA",
     c.nome AS "Curso",
+    /*d.nome AS "Disciplina",*/
     h.nota AS "Nota",
     h.status AS "Status",
-    h.semestre AS "Semestre"
+    l.semestre AS "Semestre"
 FROM
     aluno a
 JOIN historicoescolar h ON a.ra = h.aluno_ra
@@ -163,7 +170,7 @@ JOIN curso c ON a.curso_id = c.id
 WHERE
     d.id = 3
 ORDER BY
-    a.nome, h.semestre;
+    a.nome, l.semestre;
     """
 #Querie 9, número total de estudantes que cursaram "Estrutura de Dados" (course_id = 'CC-102').
 
